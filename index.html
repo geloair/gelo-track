@@ -166,13 +166,43 @@
         // ==========================================
         const baseDeDatos = {
             "2000016745293404": `
-                <h4 style="color:#fff; margin-bottom:15px;">Cliente: Franco</h4>
-                <div class="status-step done">✓ 1. Moldería Digital</div>
-                <div class="status-step done">✓ 2. Corte Láser</div>
-                <div class="status-step current">➔ 3. Sublimación (En proceso...)</div>
-                <div class="status-step">○ 4. Confección y Costura</div>
-                <div class="status-step">○ 5. Control de Calidad y DTF</div>
-                <div class="status-step">○ 6. Listo para Retirar / Enviar</div>
+                <h4 style="color:#fff; margin-bottom:20px; font-size:1.1rem;">Cliente: Franco</h4>
+                
+                <!-- PASO 1: APROBADO (VERDE) -->
+                <div class="status-step done">
+                    <span style="font-size: 1.2rem; margin-right: 8px;">🤝</span> 🟩 1. Seña recibida & turno reservado
+                    <br><span style="font-size: 0.85rem; color: #a3e4d7; font-style: italic; font-weight: normal; display: block; margin-top: 4px; margin-left: 28px;">Estado: Aprobado (29 de mayo).</span>
+                </div>
+                
+                <!-- PASO 2: EN PROCESO ACTUAL (AMARILLO) -->
+                <div class="status-step current">
+                    <span style="font-size: 1.2rem; margin-right: 8px;">💻</span> 🟦 2. Moldería & diseño digital en Illustrator
+                    <br><span style="font-size: 0.85rem; color: #fdebd0; font-style: italic; font-weight: normal; display: block; margin-top: 4px; margin-left: 28px;">Estado: En proceso actual (Estimado hasta hoy 1 de junio).</span>
+                </div>
+                
+                <!-- PASO 3: PRÓXIMO PASO (GRIS/PENDIENTE) -->
+                <div class="status-step">
+                    <span style="font-size: 1.2rem; margin-right: 8px;">🖨️</span> ⬛ 3. Impresión & Sublimado Técnico
+                    <br><span style="font-size: 0.85rem; color: #777; font-style: italic; font-weight: normal; display: block; margin-top: 4px; margin-left: 28px;">Estado: Próximo paso.</span>
+                </div>
+                
+                <!-- PASO 4: PENDIENTE -->
+                <div class="status-step">
+                    <span style="font-size: 1.2rem; margin-right: 8px;">✂️</span> ⬛ 4. Mesa de Corte & Confección
+                    <br><span style="font-size: 0.85rem; color: #777; font-style: italic; font-weight: normal; display: block; margin-top: 4px; margin-left: 28px;">Estado: Pendiente.</span>
+                </div>
+                
+                <!-- PASO 5: PENDIENTE -->
+                <div class="status-step">
+                    <span style="font-size: 1.2rem; margin-right: 8px;">🔎</span> ⬛ 5. Control de Calidad & Embalaje
+                    <br><span style="font-size: 0.85rem; color: #777; font-style: italic; font-weight: normal; display: block; margin-top: 4px; margin-left: 28px;">Estado: Pendiente.</span>
+                </div>
+                
+                <!-- PASO 6: PENDIENTE -->
+                <div class="status-step">
+                    <span style="font-size: 1.2rem; margin-right: 8px;">🚚</span> ⬛ 6. Pedido Listo para Entrega 📦
+                    <br><span style="font-size: 0.85rem; color: #777; font-style: italic; font-weight: normal; display: block; margin-top: 4px; margin-left: 28px;">Estado: Pendiente.</span>
+                </div>
             `,
             "2000099999999999": `
                 <h4 style="color:#fff; margin-bottom:15px;">Cliente: Desertores (Ejemplo)</h4>
