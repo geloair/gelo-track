@@ -1,0 +1,189 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>GELO Track - Buscador de Pedidos</title>
+    <style>
+        /* Diseño Premium Black */
+        body {
+            background-color: #0d0d0d;
+            color: #ffffff;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            min-height: 100vh;
+            margin: 0;
+            padding: 20px;
+            box-sizing: border-box;
+        }
+        .container {
+            max-width: 500px;
+            width: 100%;
+            text-align: center;
+            background: #1a1a1a;
+            padding: 40px;
+            border-radius: 12px;
+            box-shadow: 0 8px 24px rgba(0,0,0,0.5);
+            border: 1px solid #2a2a2a;
+        }
+        h1 {
+            font-size: 2.5rem;
+            margin-bottom: 5px;
+            letter-spacing: 1px;
+        }
+        .subtitle {
+            color: #888;
+            margin-bottom: 30px;
+            font-size: 1rem;
+        }
+        .search-box {
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+        }
+        input[type="text"] {
+            width: 100%;
+            padding: 15px;
+            background: #262626;
+            border: 2px solid #333;
+            border-radius: 8px;
+            color: #fff;
+            font-size: 1rem;
+            box-sizing: border-box;
+            text-align: center;
+            outline: none;
+            transition: border-color 0.3s;
+        }
+        input[type="text"]:focus {
+            border-color: #555;
+        }
+        button {
+            padding: 15px;
+            background: #ffffff;
+            color: #000000;
+            border: none;
+            border-radius: 8px;
+            font-size: 1rem;
+            font-weight: bold;
+            cursor: pointer;
+            transition: background 0.3s;
+        }
+        button:hover {
+            background: #cccccc;
+        }
+        /* Sección de Resultados */
+        .result-container {
+            margin-top: 30px;
+            padding-top: 20px;
+            border-top: 1px solid #333;
+            display: none;
+            text-align: left;
+        }
+        .error-msg {
+            color: #ff4d4d;
+            text-align: center;
+            display: none;
+            margin-top: 20px;
+        }
+        /* Bloques de Estado de Producción (Estilo GELO) */
+        .status-step {
+            padding: 12px;
+            margin-bottom: 8px;
+            border-radius: 6px;
+            background: #262626;
+            border-left: 5px solid #444;
+            font-weight: 500;
+        }
+        .status-step.done {
+            background: #1e3a1e;
+            border-left-color: #2ecc71;
+            color: #a3e4d7;
+        }
+        .status-step.current {
+            background: #3a301e;
+            border-left-color: #f1c40f;
+            color: #fdebd0;
+            animation: pulse 2s infinite;
+        }
+        @keyframes pulse {
+            0% { opacity: 0.8; }
+            50% { opacity: 1; }
+            100% { opacity: 0.8; }
+        }
+    </style>
+</head>
+<body>
+
+    <div class="container">
+        <h1>GELO Track</h1>
+        <div class="subtitle">Buscador de Pedidos GELO</div>
+        
+        <div class="search-box">
+            <input type="text" id="trackingInput" placeholder="Ingresá tu número de orden o seguimiento">
+            <button onclick="buscarPedido()">BUSCAR PEDIDO</button>
+        </div>
+
+        <div id="errorMsg" class="error-msg">⚠️ Código no encontrado. Verificá los números e intentalo de nuevo.</div>
+
+        <!-- Espacio donde se dibuja el estado del cliente -->
+        <div id="resultContainer" class="result-container">
+            <h3 style="margin-top:0; color:#888;">Estado de tu pedido:</h3>
+            <div id="pantallaCliente"></div>
+        </div>
+    </div>
+
+    <script>
+        // ==========================================
+        // 📁 BASE DE DATOS DE CLIENTES (Oculta para el público)
+        // Acá vas agregando o editando tus clientes y sus estados.
+        // "done" = Terminado (Verde) | "current" = En proceso (Amarillo) | "pending" = En espera (Gris)
+        // ==========================================
+        const baseDeDatos = {
+            "2000016745293404": `
+                <h4 style="color:#fff; margin-bottom:15px;">Cliente: Franco</h4>
+                <div class="status-step done">✓ 1. Moldería Digital</div>
+                <div class="status-step done">✓ 2. Corte Láser</div>
+                <div class="status-step current">➔ 3. Sublimación (En proceso...)</div>
+                <div class="status-step">○ 4. Confección y Costura</div>
+                <div class="status-step">○ 5. Control de Calidad y DTF</div>
+                <div class="status-step">○ 6. Listo para Retirar / Enviar</div>
+            `,
+            "2000099999999999": `
+                <h4 style="color:#fff; margin-bottom:15px;">Cliente: Desertores (Ejemplo)</h4>
+                <div class="status-step done">✓ 1. Moldería Digital</div>
+                <div class="status-step current">➔ 2. Corte Láser (En proceso...)</div>
+                <div class="status-step">○ 3. Sublimación</div>
+                <div class="status-step">○ 4. Confección y Costura</div>
+                <div class="status-step">○ 5. Control de Calidad y DTF</div>
+                <div class="status-step">○ 6. Listo para Retirar / Enviar</div>
+            `
+            // Para meter un cliente nuevo, copiás desde la comilla invertida anterior, ponés una coma (,) abajo y armás el otro código.
+        };
+
+        // Lógica del Buscador Inteligente
+        function buscarPedido() {
+            const codigo = document.getElementById("trackingInput").value.trim();
+            const resultContainer = document.getElementById("resultContainer");
+            const pantallaCliente = document.getElementById("pantallaCliente");
+            const errorMsg = document.getElementById("errorMsg");
+
+            // Ocultar busquedas anteriores
+            resultContainer.style.display = "none";
+            errorMsg.style.display = "none";
+
+            if (baseDeDatos[codigo]) {
+                // Si existe el código, muestra los bloques hermosos
+                pantallaCliente.innerHTML = baseDeDatos[codigo];
+                resultContainer.style.display = "block";
+            } else {
+                // Si no existe, tira error
+                errorMsg.style.display = "block";
+            }
+        }
+    </script>
+
+</body>
+</html>
