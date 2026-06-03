@@ -28,6 +28,7 @@
             border-radius: 12px;
             box-shadow: 0 8px 24px rgba(0,0,0,0.5);
             border: 1px solid #2a2a2a;
+            box-sizing: border-box; /* Evita que el padding rompa el ancho */
         }
         h1 {
             font-size: 2.5rem;
@@ -88,14 +89,16 @@
             display: none;
             margin-top: 20px;
         }
-        /* Bloques de Estado de Producción (Estilo GELO) */
+        /* Bloques de Estado de Producción */
         .status-step {
-            padding: 12px;
-            margin-bottom: 8px;
+            padding: 15px; /* Un poquito más de espacio para tocar con el dedo */
+            margin-bottom: 10px;
             border-radius: 6px;
             background: #262626;
             border-left: 5px solid #444;
             font-weight: 500;
+            font-size: 0.95rem;
+            line-height: 1.4; /* Espaciado cómodo para los textos secundarios abajo */
         }
         .status-step.done {
             background: #1e3a1e;
@@ -112,6 +115,26 @@
             0% { opacity: 0.8; }
             50% { opacity: 1; }
             100% { opacity: 0.8; }
+        }
+
+        /* ==========================================
+           📱 REGLAS PARA CELULARES (RESPONSIVE)
+           ========================================== */
+        @media (max-width: 480px) {
+            body {
+                padding: 10px; /* Menos espacio muerto afuera */
+            }
+            .container {
+                padding: 25px 15px; /* Achicamos los márgenes internos de la caja gris */
+                border-radius: 8px;
+            }
+            h1 {
+                font-size: 2rem; /* Título un toque más chico para que no corte línea */
+            }
+            .status-step {
+                font-size: 0.88rem; /* Letras de los pasos más cómodas para pantallas chicas */
+                padding: 12px 10px;
+            }
         }
     </style>
 </head>
