@@ -351,91 +351,121 @@
 
     <script>
         // ==========================================
-        // 📁 BASE DE DATOS DE CLIENTES
+        // 🌐 CONEXIÓN EN VIVO CON GOOGLE SHEETS
         // ==========================================
-        const baseDeDatos = {
-            "2000016745293404": `
-                <h4 style="color:#fff; margin-top:0; margin-bottom:20px; font-size:1.1rem; font-weight: 700; letter-spacing: 0.5px;">Cliente: Franco Marini</h4>
-                
-                <div class="status-step done">
-                    <span style="font-size: 1.1rem; margin-right: 8px;">🤝</span> 🟩 1. Pedido recibido
-                    <br><span style="font-size: 0.8rem; color: #8cbd9c; font-style: italic; font-weight: normal; display: block; margin-top: 5px; margin-left: 28px;">Estado: Aprobado (2 de junio).</span>
-                </div>
-                
-                <div class="status-step current">
-                    <span style="font-size: 1.1rem; margin-right: 8px;">💻</span> 🟦 2. Moldería & diseño digital
-                    <br><span style="font-size: 0.8rem; color: #ebdca5; font-style: italic; font-weight: normal; display: block; margin-top: 5px; margin-left: 28px;">Estado: En proceso actual (Estimado hasta hoy 2 de junio).</span>
-                </div>
-                
-                <div class="status-step">
-                    <span style="font-size: 1.1rem; margin-right: 8px;">🖨️</span> ⬛ 3. Impresión & Sublimado
-                    <br><span style="font-size: 0.8rem; color: #555; font-style: italic; font-weight: normal; display: block; margin-top: 5px; margin-left: 28px;">Estado: Próximo paso.</span>
-                </div>
-                
-                <div class="status-step">
-                    <span style="font-size: 1.1rem; margin-right: 8px;">✂️</span> ⬛ 4. Mesa de Corte & Confección
-                    <br><span style="font-size: 0.8rem; color: #555; font-style: italic; font-weight: normal; display: block; margin-top: 5px; margin-left: 28px;">Estado: Pendiente.</span>
-                </div>
-                
-                <div class="status-step">
-                    <span style="font-size: 1.1rem; margin-right: 8px;">🔎</span> ⬛ 5. Control de Calidad & Embalaje
-                    <br><span style="font-size: 0.8rem; color: #555; font-style: italic; font-weight: normal; display: block; margin-top: 5px; margin-left: 28px;">Estado: Pendiente.</span>
-                </div>
-                
-                <div class="status-step">
-                    <span style="font-size: 1.1rem; margin-right: 8px;">📦</span> ⬛ 6. Pedido Listo para Entrega
-                    <br><span style="font-size: 0.8rem; color: #555; font-style: italic; font-weight: normal; display: block; margin-top: 5px; margin-left: 28px;">Estado: Pendiente.</span>
-                </div>
+        // Tu link oficial de Apps Script que lee la planilla
+        const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbzDQngX9orjJ-Bo2BQkqThZreDq1IHZqdIcAxJjPuR8NPNMPYTv5U6f25FhPcO57gyopA/exec";
 
-                <div class="status-step">
-                    <span style="font-size: 1.1rem; margin-right: 8px;">🚀</span> ⬛ 7. Pedido Enviado / Entregado 🎉
-                    <br><span style="font-size: 0.8rem; color: #555; font-style: italic; font-weight: normal; display: block; margin-top: 5px; margin-left: 28px;">Estado: Pendiente.</span>
-                </div>
-            `
-        };
-
-        function buscarPedido() {
+        async function buscarPedido() {
             const codigo = document.getElementById("trackingInput").value.trim();
             const resultContainer = document.getElementById("resultContainer");
             const pantallaCliente = document.getElementById("pantallaCliente");
             const errorMsg = document.getElementById("errorMsg");
 
+            // Validar que no busque en blanco
+            if (!codigo) return;
+
             resultContainer.style.display = "none";
             errorMsg.style.display = "none";
+            pantallaCliente.innerHTML = `<p style="text-align:center; color:#888; font-weight:600; padding:20px;">🔍 Buscando en el sistema del taller...</p>`;
+            resultContainer.style.display = "block";
 
-            if (baseDeDatos[codigo]) {
-                pantallaCliente.innerHTML = baseDeDatos[codigo];
-                resultContainer.style.display = "block";
+            try {
+                // 1. Viajar a Google Sheets a buscar los datos en tiempo real
+                const respuesta = await fetch(SCRIPT_URL);
+                const baseDeDatos = await respuesta.json();
 
-                const pasosTotales = pantallaCliente.querySelectorAll('.status-step').length;
-                const pasosTerminados = pantallaCliente.querySelectorAll('.status-step.done').length;
-                const pasoActual = pantallaCliente.querySelectorAll('.status-step.current').length;
-                
-                let porcentaje = 0;
-                if (pasosTotales > 0) {
-                    porcentaje = Math.round(((pasosTerminados + (pasoActual * 0.5)) / pasosTotales) * 100);
+                // 2. Si el código existe en el Excel, armamos los 7 pasos dinámicos
+                if (baseDeDatos && baseDeDatos[codigo]) {
+                    const pedido = baseDeDatos[codigo];
+                    const pasoActual = parseInt(pedido.pasoActual) || 1;
+                    
+                    // Almacenamos los textos originales que tenías en tu script
+                    const estructuraPasos = [
+                        { icono: "🤝", titulo: "1. Pedido recibido", descDefault: "Estado: Aprobado.", descEspecifica: pedido.detalle1 },
+                        { icono: "💻", titulo: "2. Moldería & diseño digital", descDefault: "Estado: Próximo paso.", descEspecifica: pedido.detalle2 },
+                        { icono: "🖨️", titulo: "3. Impresión & Sublimado", descDefault: "Estado: Próximo paso." },
+                        { icono: "✂️", titulo: "4. Mesa de Corte & Confección", descDefault: "Estado: Pendiente." },
+                        { icono: "🔎", titulo: "5. Control de Calidad & Embalaje", descDefault: "Estado: Pendiente." },
+                        { icono: "📦", titulo: "6. Pedido Listo para Entrega", descDefault: "Estado: Pendiente." },
+                        { icono: "🚀", titulo: "7. Pedido Enviado / Entregado 🎉", descDefault: "Estado: Pendiente." }
+                    ];
+
+                    let pasosHTML = `<h4 style="color:#fff; margin-top:0; margin-bottom:20px; font-size:1.1rem; font-weight: 700; letter-spacing: 0.5px;">Cliente: ${pedido.cliente}</h4>`;
+                    let pasosTerminados = 0;
+                    let tieneCurrent = 0;
+
+                    // 3. Renderizar las clases (.done, .current) según el número de PasoActual de la planilla
+                    estructuraPasos.forEach((paso, index) => {
+                        const numeroPaso = index + 1;
+                        let claseEstado = "";
+                        let colorTextoDesc = "#555";
+                        let descripcion = paso.descDefault;
+
+                        if (numeroPaso < pasoActual) {
+                            claseEstado = "done";
+                            colorTextoDesc = "#8cbd9c"; // Verde sutil para completados
+                            pasosTerminados++;
+                            // Si hay una descripción específica (como la fecha de la seña en columna D), la usa
+                            if (paso.descEspecifica) descripcion = `Estado: ${paso.descEspecifica}`;
+                        } else if (numeroPaso === pasoActual) {
+                            claseEstado = "current";
+                            colorTextoDesc = "#ebdca5"; // Amarillo para el paso activo
+                            tieneCurrent = 1;
+                            // Si hay un estimado (como el texto de la columna E), lo inyecta acá
+                            if (paso.descEspecifica) {
+                                descripcion = `Estado: ${paso.descEspecifica}`;
+                            } else {
+                                descripcion = "Estado: En proceso actual.";
+                            }
+                        }
+
+                        pasosHTML += `
+                            <div class="status-step ${claseEstado}">
+                                <span style="font-size: 1.1rem; margin-right: 8px;">${paso.icono}</span> ${claseEstado === 'done' ? '🟩' : (claseEstado === 'current' ? '🟦' : '⬛')} ${paso.titulo}
+                                <br><span style="font-size: 0.8rem; color: ${colorTextoDesc}; font-style: italic; font-weight: normal; display: block; margin-top: 5px; margin-left: 28px;">${descripcion}</span>
+                            </div>
+                        `;
+                    });
+
+                    // 4. Inyectar todo el contenido limpio en la pantalla
+                    pantallaCliente.innerHTML = pasosHTML;
+
+                    // 5. Autocalcular porcentaje exacto de la barra
+                    let porcentaje = 0;
+                    if (estructuraPasos.length > 0) {
+                        porcentaje = Math.round(((pasosTerminados + (tieneCurrent * 0.5)) / estructuraPasos.length) * 100);
+                    }
+                    if (porcentaje > 100) porcentaje = 100;
+
+                    const barraHTML = `
+                        <div class="progress-wrapper">
+                            <div class="progress-info">
+                                <span>PROGRESO DE PRODUCCIÓN</span>
+                                <span id="progressPercent">${porcentaje}%</span>
+                            </div>
+                            <div class="progress-bar-bg">
+                                <div class="progress-bar-fill" style="width: ${porcentaje}%;"></div>
+                            </div>
+                        </div>
+                    `;
+
+                    // Colocar la barra arriba del todo
+                    pantallaCliente.insertAdjacentHTML('afterbegin', barraHTML);
+
+                    // Agregar el botón para resetear abajo
+                    const botonVolverHTML = `<button class="btn-back" onclick="volverInicio()">← Volver al Inicio</button>`;
+                    pantallaCliente.insertAdjacentHTML('beforeend', botonVolverHTML);
+
+                } else {
+                    // Si el código no está en el Excel
+                    resultContainer.style.display = "none";
+                    errorMsg.style.display = "block";
                 }
-                if (porcentaje > 100) porcentaje = 100;
 
-                const barraHTML = `
-                    <div class="progress-wrapper">
-                        <div class="progress-info">
-                            <span>PROGRESO DE PRODUCCIÓN</span>
-                            <span id="progressPercent">${porcentaje}%</span>
-                        </div>
-                        <div class="progress-bar-bg">
-                            <div class="progress-bar-fill" style="width: ${porcentaje}%;"></div>
-                        </div>
-                    </div>
-                `;
-
-                pantallaCliente.insertAdjacentHTML('afterbegin', barraHTML);
-
-                const botonVolverHTML = `<button class="btn-back" onclick="volverInicio()">← Volver al Inicio</button>`;
-                pantallaCliente.insertAdjacentHTML('beforeend', botonVolverHTML);
-
-            } else {
-                errorMsg.style.display = "block";
+            } catch (error) {
+                console.error("Error conectando con el taller:", error);
+                pantallaCliente.innerHTML = `<p style="text-align:center; color:#ff4d4d; font-weight:600; padding:20px;">⚠️ Error de conexión. Intentalo de nuevo en unos instantes.</p>`;
             }
         }
 
@@ -447,7 +477,7 @@
             trackingInput.value = "";
             trackingInput.focus();
         }
-    </script>
+</script>
 
 </body>
 </html>
