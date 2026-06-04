@@ -397,12 +397,25 @@
                         { icono: "📦", titulo: "6. Pedido Listo para Entrega", descEspecifica: pedido.detalle6, foto: pedido.foto6 },
                         { icono: "🚀", titulo: "7. Pedido Enviado / Entregado 🎉", descEspecifica: pedido.detalle7, foto: pedido.foto7 }
                     ];
+                    
+// Cabecera con datos del cliente y de la prenda estilizados
+    let pasosHTML = `
+        <div style="margin-bottom: 25px; padding: 15px; background: rgba(255,255,255,0.02); border-radius: 12px; border: 1px solid rgba(255,255,255,0.05); text-align: left; font-family: 'Montserrat', sans-serif;">
+            <p style="margin: 0 0 12px 0; color: #fff; font-size: 1.1rem; font-weight: 700;">
+                <span style="color: #666; font-size: 0.8rem; text-transform: uppercase; display: block; letter-spacing: 1px; font-weight: 600; margin-bottom: 2px;">Cliente</span>
+                ${pedido.cliente}
+            </p>
+            <p style="margin: 0; color: #fff; font-size: 0.95rem; font-weight: 600;">
+                <span style="color: #666; font-size: 0.8rem; text-transform: uppercase; display: block; letter-spacing: 1px; font-weight: 600; margin-bottom: 2px;">Detalle del Pedido</span>
+                <span style="color: #ebdca5; font-style: italic; font-weight: 500;">${pedido.detalle ? pedido.detalle : 'No especificado'}</span>
+            </p>
+        </div>
+    `;
 
-                    let pasosHTML = `<h4 style="color:#fff; margin-top:0; margin-bottom:20px; font-size:1.1rem; font-weight: 700; letter-spacing: 0.5px;">Cliente: ${pedido.cliente}</h4>`;
-                    let pasosTerminados = 0;
-                    let tieneCurrent = 0;
+    let pasosTerminados = 0;
+    let tieneCurrent = 0;
 
-                    estructuraPasos.forEach((paso, index) => {
+    estructuraPasos.forEach((paso, index) => {
                         const numeroPaso = index + 1;
                         let claseEstado = "";
                         let colorTextoDesc = "#555";
