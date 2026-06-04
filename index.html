@@ -376,15 +376,15 @@
                     const pedido = baseDeDatos[codigo];
                     const pasoActual = parseInt(pedido.pasoActual) || 1;
                     
-                    // Enlazamos los 7 pasos con sus 7 columnas correspondientes
+                    // Estructura que asocia cada paso con su texto y su foto correspondiente
                     const estructuraPasos = [
-                        { icono: "🤝", titulo: "1. Pedido recibido", descEspecifica: pedido.detalle1 },
-                        { icono: "💻", titulo: "2. Moldería & diseño digital", descEspecifica: pedido.detalle2 },
-                        { icono: "🖨️", titulo: "3. Impresión & Sublimado", descEspecifica: pedido.detalle3 },
-                        { icono: "✂️", titulo: "4. Mesa de Corte & Confección", descEspecifica: pedido.detalle4 },
-                        { icono: "🔎", titulo: "5. Control de Calidad & Embalaje", descEspecifica: pedido.detalle5 },
-                        { icono: "📦", titulo: "6. Pedido Listo para Entrega", descEspecifica: pedido.detalle6 },
-                        { icono: "🚀", titulo: "7. Pedido Enviado / Entregado 🎉", descEspecifica: pedido.detalle7 } // <-- Enlazado a la columna J
+                        { icono: "🤝", titulo: "1. Pedido recibido", descEspecifica: pedido.detalle1, foto: null },
+                        { icono: "💻", titulo: "2. Moldería & diseño digital", descEspecifica: pedido.detalle2, foto: pedido.foto2 },
+                        { icono: "🖨️", titulo: "3. Impresión & Sublimado", descEspecifica: pedido.detalle3, foto: pedido.foto3 },
+                        { icono: "✂️", titulo: "4. Mesa de Corte & Confección", descEspecifica: pedido.detalle4, foto: pedido.foto4 },
+                        { icono: "🔎", titulo: "5. Control de Calidad & Embalaje", descEspecifica: pedido.detalle5, foto: pedido.foto5 },
+                        { icono: "📦", titulo: "6. Pedido Listo para Entrega", descEspecifica: pedido.detalle6, foto: pedido.foto6 },
+                        { icono: "🚀", titulo: "7. Pedido Enviado / Entregado 🎉", descEspecifica: pedido.detalle7, foto: pedido.foto7 }
                     ];
 
                     let pasosHTML = `<h4 style="color:#fff; margin-top:0; margin-bottom:20px; font-size:1.1rem; font-weight: 700; letter-spacing: 0.5px;">Cliente: ${pedido.cliente}</h4>`;
@@ -413,10 +413,21 @@
                             descripcion = "Estado: Pendiente.";
                         }
 
+                        // Generar el bloque de la imagen solo si hay un link cargado en esa columna específica
+                        let imagenHTML = "";
+                        if (paso.foto && paso.foto.trim() !== "") {
+                            imagenHTML = `
+                                <div style="margin-top: 10px; max-width: 100%; overflow: hidden; border-radius: 8px; border: 1px solid rgba(255,255,255,0.08);">
+                                    <img src="${paso.foto.trim()}" alt="Evidencia taller" style="width: 100%; height: auto; display: block; object-fit: cover;">
+                                </div>
+                            `;
+                        }
+
                         pasosHTML += `
-                            <div class="status-step ${claseEstado}">
+                            <div class="status-step ${claseEstado}" style="padding-bottom: 15px;">
                                 <span style="font-size: 1.1rem; margin-right: 8px;">${paso.icono}</span> ${claseEstado === 'done' ? '🟩' : (claseEstado === 'current' ? '🟦' : '⬛')} ${paso.titulo}
-                                <br><span style="font-size: 0.8rem; color: ${colorTextoDesc}; font-style: italic; font-weight: normal; display: block; margin-top: 5px; margin-left: 28px;">${descripcion}</span>
+                                <br><span style="font-size: 0.8rem; color: ${colorTextoDesc}; font-style: italic; font-weight: normal; display: block; margin-top: 5px; margin-left: 28px; margin-bottom: 5px;">${descripcion}</span>
+                                ${imagenHTML}
                             </div>
                         `;
                     });
@@ -466,6 +477,5 @@
             trackingInput.focus();
         }
 </script>
-
 </body>
 </html>
